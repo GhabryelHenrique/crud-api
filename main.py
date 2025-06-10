@@ -80,6 +80,7 @@ def create_customer():
         cursor.execute(stmt_insert, (first_name, last_name, email, company, address, city, state, country, postal_code, phone, fax))
         conn.commit()
         customer_id = cursor.lastrowid
+        print(customer_id)
         conn.close()
         
         return jsonify({'CustomerId': customer_id, **data}), 201
@@ -95,6 +96,15 @@ def get_all_customers():
     conn = get_db_connection()
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM customers')
+    records = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return jsonify(records)
+
+@app.route('/customers/<id>', methods=["GET"])
+def get_customers_by_id(id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM customers where CustomerId = ?', (id,))
     records = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return jsonify(records)
